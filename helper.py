@@ -1,11 +1,12 @@
 from urlextract import URLExtract
+
 extract = URLExtract()
 from wordcloud import WordCloud
 import pandas as pd
 from collections import Counter
 import emoji
 
-def fetch_stat(selected_user,df):
+def fetch_stat(selected_user, df):
     if selected_user != "Overall":
         df = df[df["users"] == selected_user]
 
@@ -29,7 +30,7 @@ def fetch_stat(selected_user,df):
     for i in df["Messages"]:
         links.extend(extract.find_urls(i))
 
-    return len(words),messages,total_media,len(links)
+    return len(words), messages, total_media, len(links)
 
 
 def MostBusyUser(df):
@@ -37,29 +38,32 @@ def MostBusyUser(df):
 
     # All user percent
 
-    df = round((df['users'].value_counts() / df.shape[0])*100,2).reset_index().rename(columns = {"index":"name","user":"percent"})
+    df = round((df['users'].value_counts() / df.shape[0]) * 100, 2).reset_index().rename(
+        columns={"index": "name", "user": "percent"})
 
-    return x,df
+    return x, df
 
-def create_wordcloud(selected_user,df):
+
+def create_wordcloud(selected_user, df):
     if selected_user != "Overall":
         df = df[df["users"] == selected_user]
 
-    wc = WordCloud(width=500,height=500,min_font_size=10,background_color="white")
+    wc = WordCloud(width=500, height=500, min_font_size=10, background_color="white")
     temp = df[df['Messages'] != "notifications"]
     temp = temp[temp["Messages"] != "<Media omitted>\n"]
 
     def_wc = wc.generate(temp["Messages"].str.cat(sep=" "))
     return def_wc
 
-def MostCommonWords(selected_user,df):
+
+def MostCommonWords(selected_user, df):
     if selected_user != "Overall":
         df = df[df["users"] == selected_user]
 
     temp = df[df['Messages'] != "notifications"]
     temp = temp[temp["Messages"] != "<Media omitted>\n"]
 
-    file = open("stop_hinglish.txt","r")
+    file = open("stop_hinglish.txt", "r")
     stop_words = file.read()
 
     words = []
@@ -69,7 +73,8 @@ def MostCommonWords(selected_user,df):
                 words.append(word)
     return pd.DataFrame(Counter(words).most_common(20))
 
-def EmojiHelper(selected_user,df):
+
+def EmojiHelper(selected_user, df):
     if selected_user != "Overall":
         df = df[df["users"] == selected_user]
 
@@ -79,13 +84,14 @@ def EmojiHelper(selected_user,df):
 
     emoji_df = pd.DataFrame(Counter(emojis).most_common(len(Counter(emojis))))
 
-    return  emoji_df
+    return emoji_df
 
-def MonthlyTimeline(selected_user,df):
+
+def MonthlyTimeline(selected_user, df):
     if selected_user != "Overall":
         df = df[df["users"] == selected_user]
 
-    timeline = df.groupby(['Year','Months','Month']).count()["Messages"].reset_index()
+    timeline = df.groupby(['Year', 'Months', 'Month']).count()["Messages"].reset_index()
 
     time = []
     for i in range(timeline.shape[0]):
